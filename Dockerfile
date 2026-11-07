@@ -8,6 +8,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev --no-install-project
 
 COPY app ./app
+COPY resources ./resources
 
 EXPOSE 8000
 CMD ["uv", "run", "--no-sync", "fastapi", "run", "app/main.py", "--port", "8000"]
