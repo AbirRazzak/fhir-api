@@ -1,0 +1,12 @@
+[project]
+name = "fhir-api"
+version = "0.1.0"
+description = "API to fetch and upload FHIR data"
+requires-python = ">=3.12"
+dependencies = ["fastapi[standard]"]
+
+[dependency-groups]
+dev = ["pytest", "ruff"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
