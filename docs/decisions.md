@@ -34,3 +34,19 @@ However, for the use case of this example API I think it actually quite clever. 
 to the code with new resource types, then the GET endpoint will dynamically allow the consumer to fetch those resources 
 without having to write new code for it.
 
+### why no CRUD endpoints?
+
+In the prompt, it states:
+> "Build an API that makes this data useful and queryable. Before you start, think carefully about who is consuming 
+> this API and what they actually need from it."
+
+From my perspective, the data didn't seem like something we'd want to be building a REST API around. I figured this API 
+would mainly focus on pulling down data, and giving the user the ability to query useful sets of information.
+
+I imagined this API would sit in front of another API that would allow for direct database access and manipulation. 
+Maybe a GraphQL API or a REST API that interfaces directly with the database. Over there a proper file injestion system 
+could live.
+
+Perhaps this API is externally faced (maybe an API specifically for life science partners?) and so this API separates 
+the data source from fetching data sets. Perhaps the FHIR resources data set is coming from an external source, in 
+which case it wouldn't be appropriate for the user to have the ability to edit the data.
