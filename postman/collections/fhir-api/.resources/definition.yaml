@@ -1,0 +1,4 @@
+$kind: collection
+description: Requests for the fhir-api service. Set baseUrl to point at another environment.
+variables:
+  baseUrl: http://127.0.0.1:8000

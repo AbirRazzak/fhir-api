@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/:resourceType/:resourceId"
+method: GET
+pathVariables:
+  resourceType: Patient
+  resourceId: noah-wyle
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('returns the requested resource', () => {
+        pm.response.to.have.status(200);
+        const body = pm.response.json();
+        pm.expect(pm.request.url.getPath()).to.eql(`/${body.resourceType}/${body.id}`);
+      });
+order: 1000

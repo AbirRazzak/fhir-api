@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{baseUrl}}/Patient/does-not-exist"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('404 with detail', () => {
+        pm.response.to.have.status(404);
+        pm.expect(pm.response.json().detail).to.include('Patient/does-not-exist');
+      });
+order: 2000
