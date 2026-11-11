@@ -39,8 +39,8 @@ def health() -> dict[str, str]:
 # exclude_unset: omit fields the stored resource never had, instead of emitting nulls/empty lists.
 @app.get(
     "/{resource_type}/{resource_id}",
-    response_model=Resource,
-    response_model_exclude_unset=True,
+    response_model=AnyResource,
+    # response_model_exclude_unset=True,
 )
 def read_resource(resource_type: str, resource_id: str, request: Request) -> Resource:
     resource = request.app.state.resources.get(resource_type, {}).get(resource_id)
