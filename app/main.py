@@ -6,14 +6,14 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
 
-from app.models import Resource, resource_adapter
+from app.models import AnyResource, resource_adapter
 
 RESOURCES_FILE = Path(__file__).parent.parent / "resources" / "fhir-resources.txt"
 
 
-def load_resources(path: Path) -> dict[str, dict[str, Resource]]:
+def load_resources(path: Path) -> dict[str, dict[str, AnyResource]]:
     """Parse an NDJSON file into {resourceType: {id: resource}}."""
-    store: dict[str, dict[str, Resource]] = defaultdict(dict)
+    store: dict[str, dict[str, AnyResource]] = defaultdict(dict)
     for line in path.read_text().splitlines():
         if line.strip():
             r = resource_adapter.validate_python(json.loads(line))
@@ -42,7 +42,9 @@ def health() -> dict[str, str]:
     response_model=AnyResource,
     # response_model_exclude_unset=True,
 )
-def read_resource(resource_type: str, resource_id: str, request: Request) -> Resource:
+def read_resource(
+    resource_type: str, resource_id: str, request: Request
+) -> AnyResource:
     resource = request.app.state.resources.get(resource_type, {}).get(resource_id)
     if resource is None:
         raise HTTPException(404, f"{resource_type}/{resource_id} not found")

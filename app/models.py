@@ -56,22 +56,31 @@ class Attachment(FhirModel):
 # Resources
 
 
-class Patient(FhirModel):
-    resourceType: Literal["Patient"] = "Patient"
+class Resource(FhirModel):
+    """Base for all resources (mirrors FHIR's abstract Resource).
+
+    Subclasses narrow resourceType to a Literal, which the discriminated
+    union below dispatches on. Declaring it here also keeps it first in JSON.
+    """
+
+    resourceType: str
     id: str
+
+
+class Patient(Resource):
+    resourceType: Literal["Patient"] = "Patient"
     name: list[HumanName] = []
     gender: str | None = None
     birthDate: date | None = None
     active: bool | None = None
 
 
-class Condition(FhirModel):
+class Condition(Resource):
     resourceType: Literal["Condition"] = "Condition"
-    id: str
     clinicalStatus: CodeableConcept | None = None
     verificationStatus: CodeableConcept | None = None
     code: CodeableConcept | None = None
-    subject: Reference
+    subject: Reference | None = None
     onsetDateTime: str | None = None
     abatementDateTime: str | None = None
     recorder: Reference | None = None
@@ -92,28 +101,26 @@ class Dosage(FhirModel):
     timing: Timing | None = None
 
 
-class MedicationRequest(FhirModel):
+class MedicationRequest(Resource):
     resourceType: Literal["MedicationRequest"] = "MedicationRequest"
-    id: str
-    status: str
-    intent: str
+    status: str | None = None
+    intent: str | None = None
     medicationCodeableConcept: CodeableConcept | None = None
-    subject: Reference
+    subject: Reference | None = None
     authoredOn: str | None = None
     requester: Reference | None = None
     dosageInstruction: list[Dosage] = []
 
 
 class ObservationComponent(FhirModel):
-    code: CodeableConcept
+    code: CodeableConcept | None = None
     valueQuantity: Quantity | None = None
 
 
-class Observation(FhirModel):
+class Observation(Resource):
     resourceType: Literal["Observation"] = "Observation"
-    id: str
-    status: str
-    code: CodeableConcept
+    status: str | None = None
+    code: CodeableConcept | None = None
     subject: Reference | None = None
     effectiveDateTime: str | None = None
     performer: list[Reference] = []
@@ -123,24 +130,22 @@ class Observation(FhirModel):
 
 
 class ProcedurePerformer(FhirModel):
-    actor: Reference
+    actor: Reference | None = None
 
 
-class Procedure(FhirModel):
+class Procedure(Resource):
     resourceType: Literal["Procedure"] = "Procedure"
-    id: str
-    status: str
+    status: str | None = None
     code: CodeableConcept | None = None
-    subject: Reference
+    subject: Reference | None = None
     performedDateTime: str | None = None
     performer: list[ProcedurePerformer] = []
 
 
-class ClinicalNote(FhirModel):
+class ClinicalNote(Resource):
     """Not a standard FHIR resource; custom to this dataset."""
 
     resourceType: Literal["ClinicalNote"] = "ClinicalNote"
-    id: str
     status: str | None = None
     subject: Reference | None = None
     author: Reference | None = None
@@ -148,30 +153,28 @@ class ClinicalNote(FhirModel):
     content: str | None = None
 
 
-class Binary(FhirModel):
+class Binary(Resource):
     resourceType: Literal["Binary"] = "Binary"
-    id: str
-    contentType: str
+    contentType: str | None = None
     data: str | None = None  # base64
 
 
 class DocumentReferenceContent(FhirModel):
-    attachment: Attachment
+    attachment: Attachment | None = None
 
 
-class DocumentReference(FhirModel):
+class DocumentReference(Resource):
     resourceType: Literal["DocumentReference"] = "DocumentReference"
-    id: str
-    status: str
+    status: str | None = None
     type: CodeableConcept | None = None
     subject: Reference | None = None
     date: str | None = None
     author: list[Reference] = []
-    content: list[DocumentReferenceContent]
+    content: list[DocumentReferenceContent] = []
 
 
-# Any resource, dispatched on resourceType.
-Resource = Annotated[
+# Any concrete resource, dispatched on resourceType.
+AnyResource = Annotated[
     Patient
     | Condition
     | MedicationRequest
@@ -182,4 +185,4 @@ Resource = Annotated[
     | DocumentReference,
     Field(discriminator="resourceType"),
 ]
-resource_adapter: TypeAdapter[Resource] = TypeAdapter(Resource)
+resource_adapter: TypeAdapter[AnyResource] = TypeAdapter(AnyResource)
