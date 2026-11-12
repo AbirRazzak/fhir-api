@@ -31,3 +31,21 @@ def test_read_resource():
         }
         assert c.get("/Patient/nobody").status_code == 404
         assert c.get("/Spaceship/noah-wyle").status_code == 404
+
+
+def test_patients_for_condition():
+    with TestClient(app) as c:
+        r = c.get("/condition_patients/38341003")  # Hypertensive disorder
+        assert r.status_code == 200
+        body = r.json()
+        assert body["condition_code"] == "38341003"
+        pairs = {(m["condition"]["id"], m["patient"]["id"]) for m in body["matches"]}
+        assert pairs == {
+            ("cond-nw-001", "noah-wyle"),
+            ("cond-kl-002", "katherine-lanasa"),
+            ("cond-ah-001", "ayesha-harris"),
+        }
+
+        r = c.get("/condition_patients/does-not-exist")
+        assert r.status_code == 200
+        assert r.json() == {"condition_code": "does-not-exist", "matches": []}

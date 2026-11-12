@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{baseUrl}}/condition_patients/:conditionCode"
+method: GET
+pathVariables:
+  - key: conditionCode
+    value: "38341003"
+    description: Condition code, e.g. SNOMED 38341003 (Hypertensive disorder)
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('every match has the requested code and a patient', () => {
+        pm.response.to.have.status(200);
+        const body = pm.response.json();
+        const code = pm.request.url.getPath().split('/').pop();
+        pm.expect(body.condition_code).to.eql(code);
+        pm.expect(body.matches).to.not.be.empty;
+        body.matches.forEach((m) => {
+          pm.expect(m.condition.code.coding[0].code).to.eql(code);
+          pm.expect(m.patient.resourceType).to.eql('Patient');
+          pm.expect(m.condition.subject.reference).to.eql(`Patient/${m.patient.id}`);
+        });
+      });
+order: 1000

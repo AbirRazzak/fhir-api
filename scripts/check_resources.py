@@ -1,4 +1,4 @@
-"""Scripted checks behind docs/data-quality-report.md.
+"""Scripted checks behind docs/generated/data-quality-report.md.
 
 Usage: python3 scripts/check_resources.py [path]   (default: resources/fhir-resources.txt)
 

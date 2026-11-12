@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{baseUrl}}/condition_patients/does-not-exist"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 with no matches', () => {
+        pm.response.to.have.status(200);
+        pm.expect(pm.response.json()).to.eql({ condition_code: 'does-not-exist', matches: [] });
+      });
+order: 2000
